@@ -208,4 +208,63 @@
             const password = document.getElementById("password").value;
 
             if (username === "admin" && password === "1234") {
-                document.getElement
+                document.getElementById("login-form").style.display = "none";
+                document.getElementById("admin-panel").style.display = "block";
+                document.getElementById("back-button").style.display = "block";
+                viewInventory();
+            } else {
+                alert("Usuario o contraseña incorrectos.");
+            }
+        }
+
+        function logout() {
+            document.getElementById("admin-panel").style.display = "none";
+            document.getElementById("products").style.display = "block";
+            document.getElementById("admin-button").style.display = "block";
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("back-button").style.display = "none";
+        }
+
+        // Mostrar el inventario actual en la vista de administración
+        function viewInventory() {
+            const inventoryTable = document.getElementById("inventory-table");
+            const lowStockTable = document.getElementById("low-stock");
+
+            inventoryTable.innerHTML = "<tr><th>Código</th><th>Producto</th><th>Stock</th><th>Precio</th></tr>";
+            lowStockTable.innerHTML = "<tr><th>Producto</th><th>Stock Actual</th></tr>";
+
+            products.forEach(product => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.stock}</td><td>₡${product.price}</td>`;
+                inventoryTable.appendChild(row);
+
+                if (product.stock < 3) {
+                    const lowStockRow = document.createElement("tr");
+                    lowStockRow.innerHTML = `<td>${product.name}</td><td>${product.stock}</td>`;
+                    lowStockTable.appendChild(lowStockRow);
+                }
+            });
+        }
+
+        // Añadir nuevo producto
+        function addNewProduct() {
+            const code = document.getElementById("new-product-code").value;
+            const name = document.getElementById("new-product-name").value;
+            const price = parseInt(document.getElementById("new-product-price").value);
+            const stock = parseInt(document.getElementById("new-product-stock").value);
+
+            if (code && name && price && stock) {
+                products.push({ code, name, price, stock });
+                alert("Producto añadido con éxito.");
+                viewInventory();
+            } else {
+                alert("Por favor, completa todos los campos.");
+            }
+        }
+
+        // Iniciar la vista de productos para clientes
+        displayProducts();
+    </script>
+</body>
+</html>
+
