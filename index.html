@@ -14,6 +14,7 @@
         #admin-button { background-color: #4CAF50; color: white; border: none; }
         #back-button { background-color: #FF0000; color: white; border: none; }
         #login-form, #admin-panel { display: none; }
+        #products { display: block; } /* Mostrar la sección de productos por defecto */
         .hidden { display: none; }
         .visible { display: block; }
         #inventory-table, #low-stock, #sales-history-table { margin-top: 20px; }
@@ -262,8 +263,8 @@
             }
         }
 
-        // Iniciar la vista de productos para clientes
-        displayProducts();
+        // Iniciar la vista de productos para clientes al cargar la página
+        window.onload = displayProducts;
     </script>
 </body>
 </html>
