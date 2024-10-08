@@ -95,4 +95,48 @@
     </div>
     
     <script>
-       
+        // Datos de los productos iniciales
+        let products = [
+            { code: "A14", name: "Alboroto", price: 250, stock: 20 },
+            { code: "A49", name: "Atún Azul", price: 1350, stock: 15 },
+            { code: "A19", name: "Atún con Vegetales", price: 1200, stock: 5 },
+            { code: "A24", name: "Barquillos", price: 1200, stock: 10 },
+            { code: "A20", name: "Barras Soft", price: 275, stock: 8 }
+        ];
+
+        let salesHistory = []; // Historial de ventas
+        
+        // Mostrar los productos con nombres y precios para los clientes (SIN QR)
+        function displayProducts() {
+            const productsContainer = document.getElementById("products-container");
+            productsContainer.innerHTML = ""; // Limpiar contenedor
+
+            products.forEach(product => {
+                const productDiv = document.createElement("div");
+                productDiv.classList.add("product-container");
+
+                productDiv.innerHTML = `
+                    <h3>${product.name}</h3>
+                    <p>Precio: ₡${product.price}</p>
+                    <p>Stock: ${product.stock}</p>
+                    <button onclick="registerPurchase('${product.code}')">Realizar Compra</button>
+                `;
+
+                productsContainer.appendChild(productDiv);
+            });
+        }
+
+        // Función para registrar la compra de un producto
+        function registerPurchase(productCode) {
+            const employeeId = prompt("Ingrese el ID del empleado:");
+            const purchaseDate = prompt("Ingrese la fecha de compra (dd/mm/aaaa):");
+            const product = products.find(p => p.code === productCode);
+            
+            if (employeeId && purchaseDate && product) {
+                // Registrar la venta en el historial
+                salesHistory.push({
+                    employeeId: employeeId,
+                    product: product.name,
+                    date: purchaseDate,
+                   
+
