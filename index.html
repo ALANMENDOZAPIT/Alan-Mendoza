@@ -17,7 +17,7 @@
         #products { display: block; } /* Mostrar la sección de productos por defecto */
         .hidden { display: none; }
         .visible { display: block; }
-        #inventory-table, #low-stock, #sales-history-table { margin-top: 20px; }
+        #inventory-table, #low-stock, #bodega-table, #restock-table, #sales-history-table { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -54,6 +54,7 @@
             <input type="text" id="new-product-name" placeholder="Nombre del Producto"><br><br>
             <input type="number" id="new-product-price" placeholder="Precio"><br><br>
             <input type="number" id="new-product-stock" placeholder="Stock Inicial"><br><br>
+            <input type="number" id="new-product-bodega" placeholder="Stock en Bodega"><br><br>
             <button onclick="addNewProduct()">Añadir Producto</button>
         </div>
 
@@ -70,11 +71,34 @@
                     <th>Precio</th>
                 </tr>
             </table>
+
+            <!-- Productos con Bajo Stock (menos de 3 unidades) -->
             <h3 style="color: red;">Productos con Bajo Stock (menos de 3 unidades)</h3>
             <table id="low-stock" border="1">
                 <tr>
+                    <th>Código</th>
                     <th>Producto</th>
-                    <th>Stock Actual</th>
+                    <th>Stock</th>
+                </tr>
+            </table>
+
+            <!-- Inventario en Bodega -->
+            <h3>Inventario en Bodega</h3>
+            <table id="bodega-table" border="1">
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th>Stock en Bodega</th>
+                </tr>
+            </table>
+
+            <!-- Productos con Necesidad de Restock (menos de 5 unidades) -->
+            <h3 style="color: red;">Productos con Necesidad de Restock (menos de 5 unidades en Bodega)</h3>
+            <table id="restock-table" border="1">
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th>Stock en Bodega</th>
                 </tr>
             </table>
         </div>
@@ -96,21 +120,21 @@
     </div>
     
     <script>
-        // Datos de los productos iniciales
+        // Datos de los productos iniciales en inventario y bodega
         let products = [
-            { code: "A14", name: "Alboroto", price: 250, stock: 20 },
-            { code: "A49", name: "Atún Azul", price: 1350, stock: 15 },
-            { code: "A19", name: "Atún con Vegetales", price: 1200, stock: 5 },
-            { code: "A24", name: "Barquillos", price: 1200, stock: 10 },
-            { code: "A20", name: "Barras Soft", price: 275, stock: 8 }
+            { code: "A14", name: "Alboroto", price: 250, stock: 20, bodegaStock: 10 },
+            { code: "A49", name: "Atún Azul", price: 1350, stock: 15, bodegaStock: 4 },
+            { code: "A19", name: "Atún con Vegetales", price: 1200, stock: 5, bodegaStock: 8 },
+            { code: "A24", name: "Barquillos", price: 1200, stock: 10, bodegaStock: 2 },
+            { code: "A20", name: "Barras Soft", price: 275, stock: 8, bodegaStock: 12 }
         ];
 
         let salesHistory = []; // Historial de ventas
-        
-        // Mostrar los productos con nombres y precios para los clientes
+
+        // Mostrar productos disponibles para clientes
         function displayProducts() {
             const productsContainer = document.getElementById("products-container");
-            productsContainer.innerHTML = ""; // Limpiar contenedor
+            productsContainer.innerHTML = ""; 
 
             products.forEach(product => {
                 const productDiv = document.createElement("div");
@@ -122,117 +146,20 @@
                     <p>Stock: ${product.stock}</p>
                     <button onclick="registerPurchase('${product.code}')">Realizar Compra</button>
                 `;
-
                 productsContainer.appendChild(productDiv);
             });
         }
 
-        // Función para registrar la compra de un producto
-        function registerPurchase(productCode) {
-            let employeeId = prompt("Ingrese el ID del empleado (3 dígitos):");
-            
-            // Validar que el ID sea de 3 dígitos
-            while (!/^\d{3}$/.test(employeeId)) {
-                alert("El ID debe tener 3 dígitos.");
-                employeeId = prompt("Ingrese el ID del empleado (3 dígitos):");
-            }
-
-            const purchaseDate = prompt("Ingrese la fecha de compra (dd/mm/aaaa):");
-            let quantity = parseInt(prompt("Ingrese la cantidad a comprar:"));
-            
-            // Validar que la cantidad sea un número positivo
-            while (isNaN(quantity) || quantity <= 0) {
-                alert("Ingrese una cantidad válida.");
-                quantity = parseInt(prompt("Ingrese la cantidad a comprar:"));
-            }
-
-            const product = products.find(p => p.code === productCode);
-            
-            if (employeeId && purchaseDate && product && quantity) {
-                if (product.stock >= quantity) {
-                    // Registrar la venta en el historial
-                    salesHistory.push({
-                        employeeId: employeeId,
-                        product: product.name,
-                        date: purchaseDate,
-                        quantity: quantity
-                    });
-
-                    product.stock -= quantity; // Restar la cantidad del stock actual
-                    alert("Compra registrada con éxito.");
-                    displayProducts();
-                    updateSalesHistory();
-                } else {
-                    alert(`Stock insuficiente. Solo hay ${product.stock} unidades disponibles.`);
-                }
-            } else {
-                alert("Datos no válidos o producto no encontrado.");
-            }
-        }
-
-        // Mostrar el historial de compras en el panel de administración
-        function updateSalesHistory() {
-            const salesTable = document.getElementById("sales-history-table");
-            salesTable.innerHTML = `
-                <tr>
-                    <th>ID de Empleado</th>
-                    <th>Producto</th>
-                    <th>Fecha de Compra</th>
-                    <th>Cantidad</th>
-                </tr>
-            `;
-            salesHistory.forEach(sale => {
-                const row = document.createElement("tr");
-                row.innerHTML = `<td>${sale.employeeId}</td><td>${sale.product}</td><td>${sale.date}</td><td>${sale.quantity}</td>`;
-                salesTable.appendChild(row);
-            });
-        }
-
-        // Funciones de navegación y autenticación
-        function showLoginForm() {
-            document.getElementById("products").style.display = "none";
-            document.getElementById("login-form").style.display = "block";
-            document.getElementById("admin-button").style.display = "none";
-            document.getElementById("back-button").style.display = "block";
-        }
-
-        function backToMain() {
-            document.getElementById("products").style.display = "block";
-            document.getElementById("login-form").style.display = "none";
-            document.getElementById("admin-panel").style.display = "none";
-            document.getElementById("admin-button").style.display = "block";
-            document.getElementById("back-button").style.display = "none";
-        }
-
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-
-            if (username === "admin" && password === "1234") {
-                document.getElementById("login-form").style.display = "none";
-                document.getElementById("admin-panel").style.display = "block";
-                document.getElementById("back-button").style.display = "block";
-                viewInventory();
-            } else {
-                alert("Usuario o contraseña incorrectos.");
-            }
-        }
-
-        function logout() {
-            document.getElementById("admin-panel").style.display = "none";
-            document.getElementById("products").style.display = "block";
-            document.getElementById("admin-button").style.display = "block";
-            document.getElementById("login-form").style.display = "none";
-            document.getElementById("back-button").style.display = "none";
-        }
-
-        // Mostrar el inventario actual en la vista de administración
         function viewInventory() {
             const inventoryTable = document.getElementById("inventory-table");
             const lowStockTable = document.getElementById("low-stock");
+            const bodegaTable = document.getElementById("bodega-table");
+            const restockTable = document.getElementById("restock-table");
 
             inventoryTable.innerHTML = "<tr><th>Código</th><th>Producto</th><th>Stock</th><th>Precio</th></tr>";
-            lowStockTable.innerHTML = "<tr><th>Producto</th><th>Stock Actual</th></tr>";
+            lowStockTable.innerHTML = "<tr><th>Código</th><th>Producto</th><th>Stock</th></tr>";
+            bodegaTable.innerHTML = "<tr><th>Código</th><th>Producto</th><th>Stock en Bodega</th></tr>";
+            restockTable.innerHTML = "<tr><th>Código</th><th>Producto</th><th>Stock en Bodega</th></tr>";
 
             products.forEach(product => {
                 const row = document.createElement("tr");
@@ -241,31 +168,23 @@
 
                 if (product.stock < 3) {
                     const lowStockRow = document.createElement("tr");
-                    lowStockRow.innerHTML = `<td>${product.name}</td><td>${product.stock}</td>`;
+                    lowStockRow.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.stock}</td>`;
                     lowStockTable.appendChild(lowStockRow);
+                }
+
+                const bodegaRow = document.createElement("tr");
+                bodegaRow.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.bodegaStock}</td>`;
+                bodegaTable.appendChild(bodegaRow);
+
+                if (product.bodegaStock < 5) {
+                    const restockRow = document.createElement("tr");
+                    restockRow.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.bodegaStock}</td>`;
+                    restockTable.appendChild(restockRow);
                 }
             });
         }
 
-        // Añadir nuevo producto
-        function addNewProduct() {
-            const code = document.getElementById("new-product-code").value;
-            const name = document.getElementById("new-product-name").value;
-            const price = parseInt(document.getElementById("new-product-price").value);
-            const stock = parseInt(document.getElementById("new-product-stock").value);
-
-            if (code && name && price && stock) {
-                products.push({ code, name, price, stock });
-                alert("Producto añadido con éxito.");
-                viewInventory();
-            } else {
-                alert("Por favor, completa todos los campos.");
-            }
-        }
-
-        // Iniciar la vista de productos para clientes al cargar la página
         window.onload = displayProducts;
     </script>
 </body>
-</html>
-
+</html
