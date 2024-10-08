@@ -3,97 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Inventario de la Soda</title>
+    <title>Soda - Gestión de Inventario</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
-        .product-container { margin: 20px; display: inline-block; border: 1px solid #ccc; padding: 15px; }
+        .product-container { margin: 20px; display: inline-block; border: 1px solid #ccc; padding: 15px; width: 250px; }
         .product-container h3 { margin: 0; }
+        .product-container p { margin: 5px 0; }
+        .header-buttons { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; }
+        #admin-button, #back-button { margin-bottom: 10px; padding: 10px; cursor: pointer; }
+        #admin-button { background-color: #4CAF50; color: white; border: none; }
+        #back-button { background-color: #FF0000; color: white; border: none; }
         #login-form, #admin-panel { display: none; }
         .hidden { display: none; }
         .visible { display: block; }
-        #inventory-table, #sales-history { margin-top: 20px; }
+        #inventory-table, #low-stock { margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>Gestión de Inventario de la Soda</h1>
+    <h1>Bienvenido a la Soda</h1>
     
-    <!-- Formulario de Inicio de Sesión -->
+    <!-- Botones de navegación -->
+    <div class="header-buttons">
+        <button id="admin-button" onclick="showLoginForm()">Modo Administrador</button>
+        <button id="back-button" class="hidden" onclick="backToMain()">Volver a Página Principal</button>
+    </div>
+    
+    <!-- Sección de productos visible para los clientes -->
+    <div id="products">
+        <h2>Artículos Disponibles</h2>
+        <div id="products-container"></div>
+    </div>
+
+    <!-- Formulario de inicio de sesión para el modo administrador -->
     <div id="login-form">
-        <h2>Iniciar Sesión</h2>
+        <h2>Iniciar Sesión como Administrador</h2>
         <input type="text" id="username" placeholder="Usuario"><br><br>
         <input type="password" id="password" placeholder="Contraseña"><br><br>
         <button onclick="login()">Iniciar Sesión</button>
     </div>
 
-    <!-- Panel de Administración -->
+    <!-- Panel de administración -->
     <div id="admin-panel">
         <h2>Panel de Administración</h2>
-        <button onclick="showAddProductForm()">Añadir Producto</button>
-        <button onclick="viewSalesHistory()">Ver Historial de Ventas</button>
-        <div id="add-product-form" class="hidden">
-            <h3>Añadir Producto</h3>
-            <input type="text" id="new-product-name" placeholder="Nombre del Producto"><br><br>
-            <input type="number" id="new-product-stock" placeholder="Stock Inicial"><br><br>
-            <button onclick="addProduct()">Guardar Producto</button>
-        </div>
-        <div id="sales-history" class="hidden">
-            <h3>Historial de Ventas</h3>
-            <table id="sales-table" border="1">
+        <div id="inventory-section">
+            <h3>Inventario Actual</h3>
+            <table id="inventory-table" border="1">
                 <tr>
-                    <th>ID de Empleado</th>
                     <th>Producto</th>
-                    <th>Cantidad</th>
+                    <th>Stock</th>
+                </tr>
+            </table>
+            <h3 style="color: red;">Productos con Bajo Stock (menos de 3 unidades)</h3>
+            <table id="low-stock" border="1">
+                <tr>
+                    <th>Producto</th>
+                    <th>Stock Actual</th>
                 </tr>
             </table>
         </div>
         <br><br>
         <button onclick="logout()">Cerrar Sesión</button>
     </div>
-
-    <!-- Vista de Productos -->
-    <div id="products" class="hidden">
-        <h2>Inventario de Productos</h2>
-        <div id="products-container"></div>
-    </div>
     
     <script>
-        // Lista de productos
+        // Productos iniciales con su precio
         let products = [
-            { id: 1, name: "Gaseosa 500ml", stock: 20, url: "https://example.com/product/1" },
-            { id: 2, name: "Chips de Papas", stock: 15, url: "https://example.com/product/2" },
-            { id: 3, name: "Agua Mineral", stock: 30, url: "https://example.com/product/3" }
+            { id: 1, name: "Gaseosa 500ml", stock: 20, price: 1.5, url: "https://example.com/product/1" },
+            { id: 2, name: "Chips de Papas", stock: 15, price: 1.0, url: "https://example.com/product/2" },
+            { id: 3, name: "Agua Mineral", stock: 2, price: 0.8, url: "https://example.com/product/3" }
         ];
-        
-        let salesHistory = []; // Historial de ventas
-        
-        // Mostrar u ocultar formularios
-        document.getElementById("login-form").style.display = "block";
 
-        // Simulación de autenticación
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-
-            // Usuario y contraseña predeterminados
-            if (username === "admin" && password === "1234") {
-                document.getElementById("login-form").style.display = "none";
-                document.getElementById("admin-panel").style.display = "block";
-                document.getElementById("products").style.display = "block";
-                displayProducts();
-            } else {
-                alert("Usuario o contraseña incorrectos.");
-            }
-        }
-
-        // Cerrar sesión
-        function logout() {
-            document.getElementById("admin-panel").style.display = "none";
-            document.getElementById("login-form").style.display = "block";
-            document.getElementById("products").style.display = "none";
-        }
-
-        // Mostrar productos con códigos QR
+        // Mostrar los productos con sus nombres, precios y códigos QR
         function displayProducts() {
             const productsContainer = document.getElementById("products-container");
             productsContainer.innerHTML = ""; // Limpiar contenedor
@@ -104,6 +85,7 @@
 
                 productDiv.innerHTML = `
                     <h3>${product.name}</h3>
+                    <p>Precio: $${product.price}</p>
                     <p>Stock: ${product.stock}</p>
                     <div id="qrcode-${product.id}"></div>
                 `;
@@ -119,55 +101,71 @@
             });
         }
 
-        // Añadir nuevo producto al inventario
-        function addProduct() {
-            const productName = document.getElementById("new-product-name").value;
-            const productStock = parseInt(document.getElementById("new-product-stock").value);
+        // Mostrar u ocultar formularios
+        function showLoginForm() {
+            document.getElementById("products").style.display = "none";
+            document.getElementById("login-form").style.display = "block";
+            document.getElementById("admin-button").style.display = "none";
+            document.getElementById("back-button").style.display = "block";
+        }
 
-            if (productName && productStock) {
-                const newProduct = {
-                    id: products.length + 1,
-                    name: productName,
-                    stock: productStock,
-                    url: `https://example.com/product/${products.length + 1}`
-                };
-                products.push(newProduct);
-                displayProducts();
-                alert("Producto añadido con éxito.");
-                document.getElementById("add-product-form").classList.add("hidden");
+        // Función para regresar a la vista principal
+        function backToMain() {
+            document.getElementById("products").style.display = "block";
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("admin-panel").style.display = "none";
+            document.getElementById("admin-button").style.display = "block";
+            document.getElementById("back-button").style.display = "none";
+        }
+
+        // Simulación de autenticación para el modo administrador
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (username === "admin" && password === "1234") {
+                document.getElementById("login-form").style.display = "none";
+                document.getElementById("admin-panel").style.display = "block";
+                document.getElementById("back-button").style.display = "block";
+                viewInventory();
             } else {
-                alert("Por favor, completa todos los campos.");
+                alert("Usuario o contraseña incorrectos.");
             }
         }
 
-        // Mostrar el historial de ventas
-        function viewSalesHistory() {
-            const salesTable = document.getElementById("sales-table");
-            salesTable.innerHTML = `
-                <tr>
-                    <th>ID de Empleado</th>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                </tr>
-            `;
-            
-            salesHistory.forEach(sale => {
+        // Cerrar sesión y volver a la vista principal
+        function logout() {
+            document.getElementById("admin-panel").style.display = "none";
+            document.getElementById("products").style.display = "block";
+            document.getElementById("admin-button").style.display = "block";
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("back-button").style.display = "none";
+        }
+
+        // Mostrar el inventario actual en la vista de administración
+        function viewInventory() {
+            const inventoryTable = document.getElementById("inventory-table");
+            const lowStockTable = document.getElementById("low-stock");
+
+            inventoryTable.innerHTML = "<tr><th>Producto</th><th>Stock</th></tr>";
+            lowStockTable.innerHTML = "<tr><th>Producto</th><th>Stock Actual</th></tr>";
+
+            products.forEach(product => {
                 const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${sale.employeeId}</td>
-                    <td>${sale.product}</td>
-                    <td>${sale.quantity}</td>
-                `;
-                salesTable.appendChild(row);
+                row.innerHTML = `<td>${product.name}</td><td>${product.stock}</td>`;
+                inventoryTable.appendChild(row);
+
+                // Agregar a tabla de bajo stock si es menor a 3
+                if (product.stock < 3) {
+                    const lowStockRow = document.createElement("tr");
+                    lowStockRow.innerHTML = `<td>${product.name}</td><td>${product.stock}</td>`;
+                    lowStockTable.appendChild(lowStockRow);
+                }
             });
-
-            document.getElementById("sales-history").classList.remove("hidden");
         }
 
-        // Mostrar/ocultar el formulario de agregar producto
-        function showAddProductForm() {
-            document.getElementById("add-product-form").classList.toggle("hidden");
-        }
+        // Iniciar con la vista de productos
+        displayProducts();
     </script>
 </body>
 </html>
