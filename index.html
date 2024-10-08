@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soda - Gestión de Inventario</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
         .product-container { margin: 20px; display: inline-block; border: 1px solid #ccc; padding: 15px; width: 250px; }
@@ -46,12 +45,28 @@
     <!-- Panel de administración -->
     <div id="admin-panel">
         <h2>Panel de Administración</h2>
+        
+        <!-- Formulario para agregar nuevos productos -->
+        <div id="add-product-section">
+            <h3>Añadir Nuevo Producto</h3>
+            <input type="text" id="new-product-code" placeholder="Código del Producto"><br><br>
+            <input type="text" id="new-product-name" placeholder="Nombre del Producto"><br><br>
+            <input type="number" id="new-product-price" placeholder="Precio"><br><br>
+            <input type="number" id="new-product-stock" placeholder="Stock Inicial"><br><br>
+            <button onclick="addNewProduct()">Añadir Producto</button>
+        </div>
+
+        <br>
+
+        <!-- Inventario Actual -->
         <div id="inventory-section">
             <h3>Inventario Actual</h3>
             <table id="inventory-table" border="1">
                 <tr>
+                    <th>Código</th>
                     <th>Producto</th>
                     <th>Stock</th>
+                    <th>Precio</th>
                 </tr>
             </table>
             <h3 style="color: red;">Productos con Bajo Stock (menos de 3 unidades)</h3>
@@ -63,18 +78,36 @@
             </table>
         </div>
         <br><br>
+
+        <!-- Historial de compras -->
+        <h3>Historial de Compras</h3>
+        <table id="sales-history-table" border="1">
+            <tr>
+                <th>ID de Empleado</th>
+                <th>Producto</th>
+                <th>Fecha de Compra</th>
+                <th>Cantidad</th>
+            </tr>
+        </table>
+        
+        <br>
         <button onclick="logout()">Cerrar Sesión</button>
     </div>
     
     <script>
-        // Productos iniciales con su precio
+        // Datos de los productos iniciales
         let products = [
-            { id: 1, name: "Gaseosa 500ml", stock: 20, price: 1.5, url: "https://example.com/product/1" },
-            { id: 2, name: "Chips de Papas", stock: 15, price: 1.0, url: "https://example.com/product/2" },
-            { id: 3, name: "Agua Mineral", stock: 2, price: 0.8, url: "https://example.com/product/3" }
+            { code: "A14", name: "Alboroto", price: 250, stock: 20 },
+            { code: "A49", name: "Atún Azul", price: 1350, stock: 15 },
+            { code: "A19", name: "Atún con Vegetales", price: 1200, stock: 5 },
+            { code: "A24", name: "Barquillos", price: 1200, stock: 10 },
+            { code: "A20", name: "Barras Soft", price: 275, stock: 8 }
+            // Agregar más productos según el inventario proporcionado
         ];
 
-        // Mostrar los productos con sus nombres, precios y códigos QR
+        let salesHistory = []; // Historial de ventas
+        
+        // Mostrar los productos con nombres y precios para los clientes
         function displayProducts() {
             const productsContainer = document.getElementById("products-container");
             productsContainer.innerHTML = ""; // Limpiar contenedor
@@ -85,23 +118,38 @@
 
                 productDiv.innerHTML = `
                     <h3>${product.name}</h3>
-                    <p>Precio: $${product.price}</p>
+                    <p>Precio: ₡${product.price}</p>
                     <p>Stock: ${product.stock}</p>
-                    <div id="qrcode-${product.id}"></div>
+                    <button onclick="buyProduct('${product.code}')">Comprar</button>
                 `;
 
                 productsContainer.appendChild(productDiv);
-
-                // Crear el código QR con la URL del producto
-                new QRCode(document.getElementById(`qrcode-${product.id}`), {
-                    text: product.url,
-                    width: 128,
-                    height: 128
-                });
             });
         }
 
-        // Mostrar u ocultar formularios
+        // Función para registrar la compra de un producto
+        function buyProduct(productCode) {
+            const employeeId = prompt("Ingrese el ID del empleado:");
+            const purchaseDate = new Date().toLocaleDateString();
+            const product = products.find(p => p.code === productCode);
+            
+            if (employeeId && product) {
+                // Registrar la venta en el historial
+                salesHistory.push({
+                    employeeId: employeeId,
+                    product: product.name,
+                    date: purchaseDate,
+                    quantity: 1
+                });
+                product.stock -= 1;
+                alert("Compra registrada con éxito.");
+                displayProducts();
+            } else {
+                alert("ID del empleado no válido o producto no encontrado.");
+            }
+        }
+
+        // Función para mostrar el panel de administración
         function showLoginForm() {
             document.getElementById("products").style.display = "none";
             document.getElementById("login-form").style.display = "block";
@@ -109,7 +157,7 @@
             document.getElementById("back-button").style.display = "block";
         }
 
-        // Función para regresar a la vista principal
+        // Función para volver a la vista principal
         function backToMain() {
             document.getElementById("products").style.display = "block";
             document.getElementById("login-form").style.display = "none";
@@ -118,7 +166,7 @@
             document.getElementById("back-button").style.display = "none";
         }
 
-        // Simulación de autenticación para el modo administrador
+        // Función para iniciar sesión como administrador
         function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
@@ -133,7 +181,7 @@
             }
         }
 
-        // Cerrar sesión y volver a la vista principal
+        // Función para cerrar sesión
         function logout() {
             document.getElementById("admin-panel").style.display = "none";
             document.getElementById("products").style.display = "block";
@@ -142,20 +190,19 @@
             document.getElementById("back-button").style.display = "none";
         }
 
-        // Mostrar el inventario actual en la vista de administración
+        // Mostrar el inventario actual
         function viewInventory() {
             const inventoryTable = document.getElementById("inventory-table");
             const lowStockTable = document.getElementById("low-stock");
 
-            inventoryTable.innerHTML = "<tr><th>Producto</th><th>Stock</th></tr>";
+            inventoryTable.innerHTML = "<tr><th>Código</th><th>Producto</th><th>Stock</th><th>Precio</th></tr>";
             lowStockTable.innerHTML = "<tr><th>Producto</th><th>Stock Actual</th></tr>";
 
             products.forEach(product => {
                 const row = document.createElement("tr");
-                row.innerHTML = `<td>${product.name}</td><td>${product.stock}</td>`;
+                row.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.stock}</td><td>₡${product.price}</td>`;
                 inventoryTable.appendChild(row);
 
-                // Agregar a tabla de bajo stock si es menor a 3
                 if (product.stock < 3) {
                     const lowStockRow = document.createElement("tr");
                     lowStockRow.innerHTML = `<td>${product.name}</td><td>${product.stock}</td>`;
@@ -164,7 +211,23 @@
             });
         }
 
-        // Iniciar con la vista de productos
+        // Añadir nuevo producto
+        function addNewProduct() {
+            const code = document.getElementById("new-product-code").value;
+            const name = document.getElementById("new-product-name").value;
+            const price = parseInt(document.getElementById("new-product-price").value);
+            const stock = parseInt(document.getElementById("new-product-stock").value);
+
+            if (code && name && price && stock) {
+                products.push({ code, name, price, stock });
+                alert("Producto añadido con éxito.");
+                viewInventory();
+            } else {
+                alert("Por favor, completa todos los campos.");
+            }
+        }
+
+        // Iniciar la vista de productos para clientes
         displayProducts();
     </script>
 </body>
