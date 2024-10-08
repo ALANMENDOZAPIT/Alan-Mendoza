@@ -138,5 +138,45 @@
                     employeeId: employeeId,
                     product: product.name,
                     date: purchaseDate,
-                   
+                    quantity: 1
+                });
+                product.stock -= 1;
+                alert("Compra registrada con éxito.");
+                displayProducts();
+                updateSalesHistory();
+            } else {
+                alert("Datos no válidos o producto no encontrado.");
+            }
+        }
 
+        // Mostrar el historial de compras en el panel de administración
+        function updateSalesHistory() {
+            const salesTable = document.getElementById("sales-history-table");
+            salesTable.innerHTML = `
+                <tr>
+                    <th>ID de Empleado</th>
+                    <th>Producto</th>
+                    <th>Fecha de Compra</th>
+                    <th>Cantidad</th>
+                </tr>
+            `;
+            salesHistory.forEach(sale => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${sale.employeeId}</td><td>${sale.product}</td><td>${sale.date}</td><td>${sale.quantity}</td>`;
+                salesTable.appendChild(row);
+            });
+        }
+
+        // Funciones de navegación y autenticación (sin cambios)
+        function showLoginForm() { /* ... */ }
+        function backToMain() { /* ... */ }
+        function login() { /* ... */ }
+        function logout() { /* ... */ }
+        function viewInventory() { /* ... */ }
+        function addNewProduct() { /* ... */ }
+
+        // Iniciar con la vista de productos para clientes
+        displayProducts();
+    </script>
+</body>
+</html>
