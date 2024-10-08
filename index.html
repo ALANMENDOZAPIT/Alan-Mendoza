@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario de la Soda</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .product-container { margin: 20px; display: inline-block; border: 1px solid #ccc; padding: 15px; }
+        .product-container h3 { margin: 0; }
+    </style>
+</head>
+<body>
+    <h1>Gestión de Inventario de la Soda</h1>
+    <div id="products"></div>
+    
+    <script>
+        // Productos iniciales de ejemplo
+        const products = [
+            { id: 1, name: "Gaseosa 500ml", stock: 20, url: "https://example.com/product/1" },
+            { id: 2, name: "Chips de Papas", stock: 15, url: "https://example.com/product/2" },
+            { id: 3, name: "Agua Mineral", stock: 30, url: "https://example.com/product/3" }
+        ];
+
+        // Contenedor para mostrar los productos
+        const productsContainer = document.getElementById("products");
+
+        // Generar código QR para cada producto
+        products.forEach(product => {
+            const productDiv = document.createElement("div");
+            productDiv.classList.add("product-container");
+
+            productDiv.innerHTML = `
+                <h3>${product.name}</h3>
+                <p>Stock: ${product.stock}</p>
+                <div id="qrcode-${product.id}"></div>
+            `;
+
+            productsContainer.appendChild(productDiv);
+
+            // Crear el código QR con la URL del producto
+            new QRCode(document.getElementById(`qrcode-${product.id}`), {
+                text: product.url,
+                width: 128,
+                height: 128
+            });
+        });
+    </script>
+</body>
+</html>
