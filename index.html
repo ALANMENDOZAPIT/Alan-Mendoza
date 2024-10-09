@@ -9,6 +9,7 @@
         .product-container { margin: 20px; display: inline-block; border: 1px solid #ccc; padding: 15px; width: 250px; }
         .product-container h3 { margin: 0; }
         .product-container p { margin: 5px 0; }
+        .product-container button { padding: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -39,14 +40,38 @@
                 const productDiv = document.createElement("div");
                 productDiv.classList.add("product-container");
 
+                // Agregar el botón de "Realizar Compra"
                 productDiv.innerHTML = `
                     <h3>${product.name}</h3>
                     <p>Precio: ₡${product.price}</p>
                     <p>Stock: ${product.stock}</p>
+                    <button onclick="buyProduct('${product.code}')">Realizar Compra</button>
                 `;
 
                 productsContainer.appendChild(productDiv);
             });
+        }
+
+        // Función para registrar la compra de un producto
+        function buyProduct(productCode) {
+            let employeeId = prompt("Ingrese el ID del empleado (3 dígitos):");
+            
+            // Validar que el ID sea de 3 dígitos
+            if (!/^\d{3}$/.test(employeeId)) {
+                alert("El ID debe tener 3 dígitos.");
+                return;
+            }
+
+            const product = products.find(p => p.code === productCode);
+
+            // Si el producto existe y tiene stock
+            if (product && product.stock > 0) {
+                product.stock -= 1; // Restar del stock
+                alert(`Compra registrada con éxito. Quedan ${product.stock} unidades de ${product.name}.`);
+                displayProducts(); // Actualizar visualmente los productos
+            } else {
+                alert("Stock insuficiente o producto no encontrado.");
+            }
         }
 
         // Llamar a la función para mostrar los productos al cargar la página
@@ -54,3 +79,4 @@
     </script>
 </body>
 </html>
+
