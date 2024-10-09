@@ -76,6 +76,65 @@
             { code: "A24", name: "Barquillos", price: 1200, stock: 10 },
             { code: "A20", name: "Barras Soft", price: 275, stock: 8 }
         ];
+// Función para añadir nuevos productos desde el modo administrador
+function addNewProduct() {
+    const code = document.getElementById("new-product-code").value;
+    const name = document.getElementById("new-product-name").value;
+    const price = parseInt(document.getElementById("new-product-price").value);
+    const stock = parseInt(document.getElementById("new-product-stock").value);
+
+    // Validar que todos los campos estén completos
+    if (code && name && !isNaN(price) && !isNaN(stock)) {
+        const newProduct = { code, name, price, stock };
+        products.push(newProduct); // Agregar al inventario
+        alert("Producto añadido con éxito.");
+        
+        // Limpiar los campos del formulario
+        document.getElementById("new-product-code").value = "";
+        document.getElementById("new-product-name").value = "";
+        document.getElementById("new-product-price").value = "";
+        document.getElementById("new-product-stock").value = "";
+
+        displayProducts(); // Actualizar la vista de productos
+        viewInventory();  // Actualizar la tabla de inventario
+    } else {
+        alert("Por favor, complete todos los campos correctamente.");
+    }
+}
+
+// Función para editar un producto existente en el inventario
+function editProduct(productCode) {
+    const product = products.find(p => p.code === productCode);
+    if (!product) return;
+
+    // Pedir nuevo precio y stock al administrador
+    const newPrice = parseInt(prompt(`Nuevo precio para ${product.name} (Actual: ₡${product.price}):`, product.price));
+    const newStock = parseInt(prompt(`Nuevo stock para ${product.name} (Actual: ${product.stock} unidades):`, product.stock));
+
+    if (!isNaN(newPrice) && !isNaN(newStock)) {
+        product.price = newPrice;
+        product.stock = newStock;
+        alert(`Producto ${product.name} actualizado con éxito.`);
+        displayProducts(); // Actualizar vista de productos
+        viewInventory();  // Actualizar tabla de inventario
+    } else {
+        alert("Por favor, ingrese valores válidos.");
+    }
+}
+
+// Función para eliminar un producto del inventario
+function deleteProduct(productCode) {
+    const productIndex = products.findIndex(p => p.code === productCode);
+    if (productIndex === -1) return;
+
+    const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar el producto ${products[productIndex].name}?`);
+    if (confirmDelete) {
+        products.splice(productIndex, 1); // Eliminar producto
+        alert("Producto eliminado con éxito.");
+        displayProducts(); // Actualizar vista de productos
+        viewInventory();  // Actualizar tabla de inventario
+    }
+}
 
         // Mostrar los productos disponibles
         function displayProducts() {
