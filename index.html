@@ -179,12 +179,15 @@
                 if (product.bodegaStock < 5) {
                     const restockRow = document.createElement("tr");
                     restockRow.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.bodegaStock}</td>`;
-                    restockTable.appendChild(restockRow);
-                }
-            });
-        }
+                    restockTable.append
 
-        window.onload = displayProducts;
+
+                    // Mostrar los productos cuando se carga la página
+        window.onload = function() {
+            displayProducts();
+            viewInventory();
+        };
     </script>
 </body>
-</html
+</html>
+
