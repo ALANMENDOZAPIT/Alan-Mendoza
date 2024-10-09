@@ -49,10 +49,7 @@
                 productsContainer.appendChild(productDiv);
             });
         }
-
-        // Llamar a la función para mostrar los productos al cargar la página
-        window.onload = displayProducts;
-   // Función para registrar la compra de un producto
+// Función para registrar la compra de un producto
 function buyProduct(productCode) {
     let employeeId = prompt("Ingrese el ID del empleado (3 dígitos):");
 
@@ -81,8 +78,10 @@ function buyProduct(productCode) {
         alert(`Stock insuficiente. Solo hay ${product.stock} unidades disponibles.`);
     }
 }
->
-   
+
+        // Llamar a la función para mostrar los productos al cargar la página
+        window.onload = displayProducts;
+        
+    </script>
 </body>
 </html>
-
