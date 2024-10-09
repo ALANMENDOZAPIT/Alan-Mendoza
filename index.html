@@ -10,70 +10,15 @@
         .product-container h3 { margin: 0; }
         .product-container p { margin: 5px 0; }
         .product-container button { padding: 10px; margin-top: 10px; }
-        .header-buttons { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; }
-        #admin-button, #back-button { margin-bottom: 10px; padding: 10px; cursor: pointer; }
-        #admin-button { background-color: #4CAF50; color: white; border: none; }
-        #back-button { background-color: #FF0000; color: white; border: none; }
-        #login-form, #admin-panel { display: none; }
-        #inventory-table { margin-top: 20px; border-collapse: collapse; width: 80%; margin-left:auto; margin-right:auto; }
-        #inventory-table, #inventory-table th, #inventory-table td { border: 1px solid black; }
-        #inventory-table th, #inventory-table td { padding: 8px; text-align: center; }
-        .edit-buttons { margin-top: 10px; }
     </style>
 </head>
 <body>
     <h1>Bienvenido a la Soda</h1>
 
-    <!-- Botones de navegación -->
-    <div class="header-buttons">
-        <button id="admin-button" onclick="showLoginForm()">Modo Administrador</button>
-        <button id="back-button" class="hidden" onclick="backToMain()">Volver a Página Principal</button>
-    </div>
-
     <!-- Sección de productos visible para los clientes -->
     <div id="products">
         <h2>Artículos Disponibles</h2>
         <div id="products-container"></div>
-    </div>
-
-    <!-- Formulario de inicio de sesión para el modo administrador -->
-    <div id="login-form">
-        <h2>Iniciar Sesión como Administrador</h2>
-        <input type="text" id="username" placeholder="Usuario"><br><br>
-        <input type="password" id="password" placeholder="Contraseña"><br><br>
-        <button onclick="login()">Iniciar Sesión</button>
-    </div>
-
-    <!-- Panel de administración -->
-    <div id="admin-panel">
-        <h2>Panel de Administración</h2>
-
-        <!-- Inventario Actual -->
-        <h3>Inventario Actual</h3>
-        <table id="inventory-table">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Producto</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="inventory-body">
-            </tbody>
-        </table>
-
-        <!-- Formulario para agregar nuevos productos -->
-        <h3>Añadir Nuevo Producto</h3>
-        <input type="text" id="new-product-code" placeholder="Código del Producto"><br><br>
-        <input type="text" id="new-product-name" placeholder="Nombre del Producto"><br><br>
-        <input type="number" id="new-product-price" placeholder="Precio"><br><br>
-        <input type="number" id="new-product-stock" placeholder="Stock Inicial"><br><br>
-        <button onclick="addNewProduct()">Añadir Producto</button>
-
-        <br><br>
-        <button onclick="logout()">Cerrar Sesión</button>
     </div>
 
     <script>
@@ -85,6 +30,7 @@
             { code: "A20", name: "Barras Soft", price: 275, stock: 8 }
         ];
 
+        // Mostrar los productos disponibles
         function displayProducts() {
             const productsContainer = document.getElementById("products-container");
             productsContainer.innerHTML = ""; // Limpiar contenedor
@@ -93,6 +39,7 @@
                 const productDiv = document.createElement("div");
                 productDiv.classList.add("product-container");
 
+                // Agregar el botón de "Realizar Compra"
                 productDiv.innerHTML = `
                     <h3>${product.name}</h3>
                     <p>Precio: ₡${product.price}</p>
@@ -103,29 +50,9 @@
             });
         }
 
-        function viewInventory() {
-            const inventoryBody = document.getElementById("inventory-body");
-            inventoryBody.innerHTML = ""; // Limpiar tabla
-
-            products.forEach(product => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${product.code}</td>
-                    <td>${product.name}</td>
-                    <td>₡${product.price}</td>
-                    <td>${product.stock}</td>
-                    <td>
-                        <button onclick="editProduct('${product.code}')">Editar</button>
-                        <button onclick="deleteProduct('${product.code}')">Eliminar</button>
-                    </td>
-                `;
-                inventoryBody.appendChild(row);
-            });
-        }
-
-        window.onload = function() {
-            displayProducts();
-        };
+        // Llamar a la función para mostrar los productos al cargar la página
+        window.onload = displayProducts;
     </script>
 </body>
 </html>
+
