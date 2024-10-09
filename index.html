@@ -53,6 +53,37 @@
         // Llamar a la función para mostrar los productos al cargar la página
         window.onload = displayProducts;
     </script>
+    // Función para registrar la compra de un producto
+function buyProduct(productCode) {
+    let employeeId = prompt("Ingrese el ID del empleado (3 dígitos):");
+
+    // Validar que el ID sea de 3 dígitos
+    if (!/^\d{3}$/.test(employeeId)) {
+        alert("El ID debe tener 3 dígitos.");
+        return;
+    }
+
+    let quantity = parseInt(prompt("Ingrese la cantidad que desea comprar:"));
+
+    // Validar que la cantidad sea un número positivo
+    if (isNaN(quantity) || quantity <= 0) {
+        alert("Por favor, ingrese una cantidad válida.");
+        return;
+    }
+
+    const product = products.find(p => p.code === productCode);
+
+    // Si el producto existe y tiene suficiente stock
+    if (product && product.stock >= quantity) {
+        product.stock -= quantity; // Restar la cantidad comprada del stock
+        alert(`Compra registrada con éxito. Quedan ${product.stock} unidades de ${product.name}.`);
+        displayProducts(); // Actualizar visualmente los productos
+    } else {
+        alert(`Stock insuficiente. Solo hay ${product.stock} unidades disponibles.`);
+    }
+}
+
+
 </body>
 </html>
 
