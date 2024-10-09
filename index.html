@@ -96,7 +96,6 @@
     </div>
 
     <script>
-        // Definir productos iniciales con bodega
         let products = [
             { code: "A14", name: "Alboroto", price: 250, stock: 20, bodegaStock: 2 },
             { code: "A49", name: "Atún Azul", price: 1350, stock: 15, bodegaStock: 3 },
@@ -105,10 +104,9 @@
             { code: "A20", name: "Barras Soft", price: 275, stock: 8, bodegaStock: 1 }
         ];
 
-        // Mostrar los productos disponibles para los clientes
         function displayProducts() {
             const productsContainer = document.getElementById("products-container");
-            productsContainer.innerHTML = ""; // Limpiar contenedor
+            productsContainer.innerHTML = ""; 
 
             products.forEach(product => {
                 const productDiv = document.createElement("div");
@@ -124,30 +122,26 @@
             });
         }
 
-        // Mostrar los reportes de inventario y bajo stock
         function viewInventoryReports() {
             const inventoryBody = document.getElementById("inventory-body");
             const lowStockBody = document.getElementById("low-stock-body");
             const restockBody = document.getElementById("restock-body");
             
-            inventoryBody.innerHTML = ""; // Limpiar tablas
+            inventoryBody.innerHTML = ""; 
             lowStockBody.innerHTML = "";
             restockBody.innerHTML = "";
 
             products.forEach(product => {
-                // Tabla de inventario actual
                 const row = document.createElement("tr");
                 row.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>₡${product.price}</td><td>${product.stock}</td>`;
                 inventoryBody.appendChild(row);
 
-                // Reporte de productos con bajo stock (menos de 3)
                 if (product.stock < 3) {
                     const lowStockRow = document.createElement("tr");
                     lowStockRow.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.stock}</td>`;
                     lowStockBody.appendChild(lowStockRow);
                 }
 
-                // Reporte de productos con necesidad de restock (menos de 5 en bodega)
                 if (product.bodegaStock < 5) {
                     const restockRow = document.createElement("tr");
                     restockRow.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.bodegaStock}</td>`;
@@ -156,7 +150,40 @@
             });
         }
 
-        // Llamar a la función de visualización inicial
+        function showLoginForm() {
+            document.getElementById("products").style.display = "none";
+            document.getElementById("login-form").style.display = "block";
+            document.getElementById("admin-button").style.display = "none";
+            document.getElementById("back-button").style.display = "block";
+        }
+
+        function backToMain() {
+            document.getElementById("products").style.display = "block";
+            document.getElementById("login-form").style.display = "none";
+            document.getElementById("admin-panel").style.display = "none";
+            document.getElementById("admin-button").style.display = "block";
+            document.getElementById("back-button").style.display = "none";
+        }
+
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (username === "admin" && password === "1234") {
+                document.getElementById("login-form").style.display = "none";
+                document.getElementById("admin-panel").style.display = "block";
+                document.getElementById("back-button").style.display = "block";
+                viewInventoryReports();
+            } else {
+                alert("Usuario o contraseña incorrectos.");
+            }
+        }
+
+        function logout() {
+            document.getElementById("admin-panel").style.display = "none";
+            backToMain();
+        }
+
         window.onload = function() {
             displayProducts();
             viewInventoryReports();
@@ -164,5 +191,3 @@
     </script>
 </body>
 </html>
-
-
