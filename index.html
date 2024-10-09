@@ -120,7 +120,6 @@
     </div>
     
     <script>
-        // Datos de los productos iniciales en inventario y bodega
         let products = [
             { code: "A14", name: "Alboroto", price: 250, stock: 20, bodegaStock: 10 },
             { code: "A49", name: "Atún Azul", price: 1350, stock: 15, bodegaStock: 4 },
@@ -129,9 +128,8 @@
             { code: "A20", name: "Barras Soft", price: 275, stock: 8, bodegaStock: 12 }
         ];
 
-        let salesHistory = []; // Historial de ventas
+        let salesHistory = [];
 
-        // Mostrar productos disponibles para clientes
         function displayProducts() {
             const productsContainer = document.getElementById("products-container");
             productsContainer.innerHTML = ""; 
@@ -179,10 +177,11 @@
                 if (product.bodegaStock < 5) {
                     const restockRow = document.createElement("tr");
                     restockRow.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.bodegaStock}</td>`;
-                    restockTable.append
+                    restockTable.appendChild(restockRow);
+                }
+            });
+        }
 
-
-                    // Mostrar los productos cuando se carga la página
         window.onload = function() {
             displayProducts();
             viewInventory();
@@ -190,4 +189,3 @@
     </script>
 </body>
 </html>
-
