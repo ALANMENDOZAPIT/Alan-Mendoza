@@ -15,10 +15,10 @@
         #admin-button { background-color: #4CAF50; color: white; border: none; }
         #back-button { background-color: #FF0000; color: white; border: none; }
         #login-form, #admin-panel { display: none; }
-        #inventory-table, #low-stock-table, #restock-table { margin-top: 20px; border-collapse: collapse; width: 80%; margin-left: auto; margin-right: auto; }
-        #inventory-table, #low-stock-table, #restock-table th, #inventory-table td, #low-stock-table td, #restock-table td { border: 1px solid black; }
-        #inventory-table th, #low-stock-table th, #restock-table th, #inventory-table td, #low-stock-table td, #restock-table td { padding: 8px; text-align: center; }
-        h3 { color: #333; }
+        #inventory-table { margin-top: 20px; border-collapse: collapse; width: 80%; margin-left:auto; margin-right:auto; }
+        #inventory-table, #inventory-table th, #inventory-table td { border: 1px solid black; }
+        #inventory-table th, #inventory-table td { padding: 8px; text-align: center; }
+        .edit-buttons { margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -57,39 +57,20 @@
                     <th>Producto</th>
                     <th>Precio</th>
                     <th>Stock</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody id="inventory-body">
             </tbody>
         </table>
 
-        <!-- Reporte de Productos con Bajo Stock -->
-        <h3 style="color: red;">Productos con Bajo Stock (menos de 3 unidades)</h3>
-        <table id="low-stock-table">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Producto</th>
-                    <th>Stock</th>
-                </tr>
-            </thead>
-            <tbody id="low-stock-body">
-            </tbody>
-        </table>
-
-        <!-- Reporte de Productos con Necesidad de Restock -->
-        <h3 style="color: red;">Productos con Necesidad de Restock (menos de 5 unidades en Bodega)</h3>
-        <table id="restock-table">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Producto</th>
-                    <th>Stock en Bodega</th>
-                </tr>
-            </thead>
-            <tbody id="restock-body">
-            </tbody>
-        </table>
+        <!-- Formulario para agregar nuevos productos -->
+        <h3>Añadir Nuevo Producto</h3>
+        <input type="text" id="new-product-code" placeholder="Código del Producto"><br><br>
+        <input type="text" id="new-product-name" placeholder="Nombre del Producto"><br><br>
+        <input type="number" id="new-product-price" placeholder="Precio"><br><br>
+        <input type="number" id="new-product-stock" placeholder="Stock Inicial"><br><br>
+        <button onclick="addNewProduct()">Añadir Producto</button>
 
         <br><br>
         <button onclick="logout()">Cerrar Sesión</button>
@@ -97,16 +78,16 @@
 
     <script>
         let products = [
-            { code: "A14", name: "Alboroto", price: 250, stock: 20, bodegaStock: 2 },
-            { code: "A49", name: "Atún Azul", price: 1350, stock: 15, bodegaStock: 3 },
-            { code: "A19", name: "Atún con Vegetales", price: 1200, stock: 2, bodegaStock: 4 },
-            { code: "A24", name: "Barquillos", price: 1200, stock: 10, bodegaStock: 5 },
-            { code: "A20", name: "Barras Soft", price: 275, stock: 8, bodegaStock: 1 }
+            { code: "A14", name: "Alboroto", price: 250, stock: 20 },
+            { code: "A49", name: "Atún Azul", price: 1350, stock: 15 },
+            { code: "A19", name: "Atún con Vegetales", price: 1200, stock: 5 },
+            { code: "A24", name: "Barquillos", price: 1200, stock: 10 },
+            { code: "A20", name: "Barras Soft", price: 275, stock: 8 }
         ];
 
         function displayProducts() {
             const productsContainer = document.getElementById("products-container");
-            productsContainer.innerHTML = ""; 
+            productsContainer.innerHTML = ""; // Limpiar contenedor
 
             products.forEach(product => {
                 const productDiv = document.createElement("div");
@@ -122,71 +103,28 @@
             });
         }
 
-        function viewInventoryReports() {
+        function viewInventory() {
             const inventoryBody = document.getElementById("inventory-body");
-            const lowStockBody = document.getElementById("low-stock-body");
-            const restockBody = document.getElementById("restock-body");
-            
-            inventoryBody.innerHTML = ""; 
-            lowStockBody.innerHTML = "";
-            restockBody.innerHTML = "";
+            inventoryBody.innerHTML = ""; // Limpiar tabla
 
             products.forEach(product => {
                 const row = document.createElement("tr");
-                row.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>₡${product.price}</td><td>${product.stock}</td>`;
+                row.innerHTML = `
+                    <td>${product.code}</td>
+                    <td>${product.name}</td>
+                    <td>₡${product.price}</td>
+                    <td>${product.stock}</td>
+                    <td>
+                        <button onclick="editProduct('${product.code}')">Editar</button>
+                        <button onclick="deleteProduct('${product.code}')">Eliminar</button>
+                    </td>
+                `;
                 inventoryBody.appendChild(row);
-
-                if (product.stock < 3) {
-                    const lowStockRow = document.createElement("tr");
-                    lowStockRow.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.stock}</td>`;
-                    lowStockBody.appendChild(lowStockRow);
-                }
-
-                if (product.bodegaStock < 5) {
-                    const restockRow = document.createElement("tr");
-                    restockRow.innerHTML = `<td>${product.code}</td><td>${product.name}</td><td>${product.bodegaStock}</td>`;
-                    restockBody.appendChild(restockRow);
-                }
             });
-        }
-
-        function showLoginForm() {
-            document.getElementById("products").style.display = "none";
-            document.getElementById("login-form").style.display = "block";
-            document.getElementById("admin-button").style.display = "none";
-            document.getElementById("back-button").style.display = "block";
-        }
-
-        function backToMain() {
-            document.getElementById("products").style.display = "block";
-            document.getElementById("login-form").style.display = "none";
-            document.getElementById("admin-panel").style.display = "none";
-            document.getElementById("admin-button").style.display = "block";
-            document.getElementById("back-button").style.display = "none";
-        }
-
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-
-            if (username === "admin" && password === "1234") {
-                document.getElementById("login-form").style.display = "none";
-                document.getElementById("admin-panel").style.display = "block";
-                document.getElementById("back-button").style.display = "block";
-                viewInventoryReports();
-            } else {
-                alert("Usuario o contraseña incorrectos.");
-            }
-        }
-
-        function logout() {
-            document.getElementById("admin-panel").style.display = "none";
-            backToMain();
         }
 
         window.onload = function() {
             displayProducts();
-            viewInventoryReports();
         };
     </script>
 </body>
