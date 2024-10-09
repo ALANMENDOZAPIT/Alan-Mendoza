@@ -29,6 +29,64 @@
             { code: "A24", name: "Barquillos", price: 1200, stock: 10 },
             { code: "A20", name: "Barras Soft", price: 275, stock: 8 }
         ];
+// Mostrar el formulario de inicio de sesión para el modo administrador
+function showLoginForm() {
+    document.getElementById("products").style.display = "none";
+    document.getElementById("login-form").style.display = "block";
+    document.getElementById("admin-button").style.display = "none";
+    document.getElementById("back-button").style.display = "block";
+}
+
+// Volver a la vista principal desde el modo administrador
+function backToMain() {
+    document.getElementById("products").style.display = "block";
+    document.getElementById("login-form").style.display = "none";
+    document.getElementById("admin-panel").style.display = "none";
+    document.getElementById("admin-button").style.display = "block";
+    document.getElementById("back-button").style.display = "none";
+}
+
+// Función de inicio de sesión
+function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (username === "admin" && password === "1234") {
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("admin-panel").style.display = "block";
+        document.getElementById("back-button").style.display = "block";
+        viewInventory(); // Mostrar el inventario actual en el modo administrador
+    } else {
+        alert("Usuario o contraseña incorrectos.");
+    }
+}
+
+// Cerrar sesión y volver a la vista de productos
+function logout() {
+    document.getElementById("admin-panel").style.display = "none";
+    backToMain();
+}
+
+// Función para mostrar el inventario actual en el modo administrador
+function viewInventory() {
+    const inventoryBody = document.getElementById("inventory-body");
+    inventoryBody.innerHTML = ""; // Limpiar tabla
+
+    products.forEach(product => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${product.code}</td>
+            <td>${product.name}</td>
+            <td>₡${product.price}</td>
+            <td>${product.stock}</td>
+            <td>
+                <button onclick="editProduct('${product.code}')">Editar</button>
+                <button onclick="deleteProduct('${product.code}')">Eliminar</button>
+            </td>
+        `;
+        inventoryBody.appendChild(row);
+    });
+}
 
         // Mostrar los productos disponibles
         function displayProducts() {
