@@ -77,7 +77,6 @@
     </div>
 
     <script>
-        // Definir productos iniciales
         let products = [
             { code: "A14", name: "Alboroto", price: 250, stock: 20 },
             { code: "A49", name: "Atún Azul", price: 1350, stock: 15 },
@@ -86,105 +85,31 @@
             { code: "A20", name: "Barras Soft", price: 275, stock: 8 }
         ];
 
-        // Mostrar los productos disponibles
         function displayProducts() {
             const productsContainer = document.getElementById("products-container");
-            productsContainer.innerHTML = ""; // Limpiar contenedor
+            productsContainer.innerHTML = ""; 
 
             products.forEach(product => {
                 const productDiv = document.createElement("div");
                 productDiv.classList.add("product-container");
 
-                // Agregar el botón de "Realizar Compra"
                 productDiv.innerHTML = `
                     <h3>${product.name}</h3>
                     <p>Precio: ₡${product.price}</p>
                     <p>Stock: ${product.stock}</p>
                     <button onclick="buyProduct('${product.code}')">Realizar Compra</button>
                 `;
-
                 productsContainer.appendChild(productDiv);
             });
         }
 
-        // Función para registrar la compra de un producto
-        function buyProduct(productCode) {
-            let employeeId = prompt("Ingrese el ID del empleado (3 dígitos):");
-            
-            // Validar que el ID sea de 3 dígitos
-            if (!/^\d{3}$/.test(employeeId)) {
-                alert("El ID debe tener 3 dígitos.");
-                return;
-            }
-
-            let quantity = parseInt(prompt("Ingrese la cantidad que desea comprar:"));
-            
-            // Validar que la cantidad sea un número positivo
-            if (isNaN(quantity) || quantity <= 0) {
-                alert("Por favor, ingrese una cantidad válida.");
-                return;
-            }
-
-            const product = products.find(p => p.code === productCode);
-
-            // Si el producto existe y tiene suficiente stock
-            if (product && product.stock >= quantity) {
-                product.stock -= quantity; // Restar la cantidad comprada del stock
-                alert(`Compra registrada con éxito. Quedan ${product.stock} unidades de ${product.name}.`);
-                displayProducts(); // Actualizar visualmente los productos
-                viewInventory(); // Actualizar la tabla de inventario en el modo administrador
-            } else {
-                alert(`Stock insuficiente. Solo hay ${product.stock} unidades disponibles.`);
-            }
-        }
-
-        // Mostrar el formulario de inicio de sesión
-        function showLoginForm() {
-            document.getElementById("products").style.display = "none";
-            document.getElementById("login-form").style.display = "block";
-            document.getElementById("admin-button").style.display = "none";
-            document.getElementById("back-button").style.display = "block";
-        }
-
-        // Volver a la vista principal
-        function backToMain() {
-            document.getElementById("products").style.display = "block";
-            document.getElementById("login-form").style.display = "none";
-            document.getElementById("admin-panel").style.display = "none";
-            document.getElementById("admin-button").style.display = "block";
-            document.getElementById("back-button").style.display = "none";
-        }
-
-        // Función de inicio de sesión
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-
-            if (username === "admin" && password === "1234") {
-                document.getElementById("login-form").style.display = "none";
-                document.getElementById("admin-panel").style.display = "block";
-                document.getElementById("back-button").style.display = "block";
-                viewInventory(); // Mostrar el inventario actual en el modo administrador
-            } else {
-                alert("Usuario o contraseña incorrectos.");
-            }
-        }
-
-        // Cerrar sesión
-        function logout() {
-            document.getElementById("admin-panel").style.display = "none";
-            backToMain();
-        }
-
-        // Función para mostrar el inventario actual en el modo administrador
         function viewInventory() {
             const inventoryBody = document.getElementById("inventory-body");
-            inventoryBody.innerHTML = ""; // Limpiar tabla
+            inventoryBody.innerHTML = ""; 
 
             products.forEach(product => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${product.code}</
                     <td>${product.code}</td>
                     <td>${product.name}</td>
                     <td>₡${product.price}</td>
@@ -198,70 +123,10 @@
             });
         }
 
-        // Función para editar un producto existente en el inventario
-        function editProduct(productCode) {
-            const product = products.find(p => p.code === productCode);
-            if (!product) return;
-
-            // Pedir nuevo precio y stock al administrador
-            const newPrice = parseInt(prompt(`Nuevo precio para ${product.name} (Actual: ₡${product.price}):`, product.price));
-            const newStock = parseInt(prompt(`Nuevo stock para ${product.name} (Actual: ${product.stock} unidades):`, product.stock));
-
-            if (!isNaN(newPrice) && !isNaN(newStock)) {
-                product.price = newPrice;
-                product.stock = newStock;
-                alert(`Producto ${product.name} actualizado con éxito.`);
-                displayProducts(); // Actualizar vista de productos
-                viewInventory();  // Actualizar tabla de inventario
-            } else {
-                alert("Por favor, ingrese valores válidos.");
-            }
-        }
-
-        // Función para eliminar un producto del inventario
-        function deleteProduct(productCode) {
-            const productIndex = products.findIndex(p => p.code === productCode);
-            if (productIndex === -1) return;
-
-            const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar el producto ${products[productIndex].name}?`);
-            if (confirmDelete) {
-                products.splice(productIndex, 1); // Eliminar producto
-                alert("Producto eliminado con éxito.");
-                displayProducts(); // Actualizar vista de productos
-                viewInventory();  // Actualizar tabla de inventario
-            }
-        }
-
-        // Función para añadir nuevos productos desde el modo administrador
-        function addNewProduct() {
-            const code = document.getElementById("new-product-code").value;
-            const name = document.getElementById("new-product-name").value;
-            const price = parseInt(document.getElementById("new-product-price").value);
-            const stock = parseInt(document.getElementById("new-product-stock").value);
-
-            // Validar que todos los campos estén completos
-            if (code && name && !isNaN(price) && !isNaN(stock)) {
-                const newProduct = { code, name, price, stock };
-                products.push(newProduct); // Agregar al inventario
-                alert("Producto añadido con éxito.");
-                
-                // Limpiar los campos del formulario
-                document.getElementById("new-product-code").value = "";
-                document.getElementById("new-product-name").value = "";
-                document.getElementById("new-product-price").value = "";
-                document.getElementById("new-product-stock").value = "";
-
-                displayProducts(); // Actualizar la vista de productos
-                viewInventory();  // Actualizar la tabla de inventario
-            } else {
-                alert("Por favor, complete todos los campos correctamente.");
-            }
-        }
-
-        // Cargar la vista inicial de productos al cargar la página
         window.onload = function() {
             displayProducts();
         };
     </script>
 </body>
 </html>
+
